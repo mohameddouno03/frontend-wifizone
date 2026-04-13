@@ -1,3 +1,4 @@
+// App.tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -7,6 +8,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import Login from "@/pages/Login";
 import ClientPayment from "@/pages/client/ClientPayment";
+import Profile from "@/pages/Profile";
 import OwnerDashboard from "@/pages/owner/OwnerDashboard";
 import OwnerMikrotiks from "@/pages/owner/OwnerMikrotiks";
 import OwnerUsers from "@/pages/owner/OwnerUsers";
@@ -15,6 +17,7 @@ import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminOwners from "@/pages/admin/AdminOwners";
 import AdminMikrotiks from "@/pages/admin/AdminMikrotiks";
 import AdminUsers from "@/pages/admin/AdminUsers";
+import MikrotikDetail from "@/pages/shared/MikrotikDetail";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,14 +44,18 @@ function AppRoutes() {
       {/* Owner routes */}
       <Route path="/owner" element={<ProtectedRoute role="owner"><OwnerDashboard /></ProtectedRoute>} />
       <Route path="/owner/mikrotiks" element={<ProtectedRoute role="owner"><OwnerMikrotiks /></ProtectedRoute>} />
+      <Route path="/owner/mikrotiks/:slug" element={<ProtectedRoute role="owner"><MikrotikDetail /></ProtectedRoute>} />
       <Route path="/owner/users" element={<ProtectedRoute role="owner"><OwnerUsers /></ProtectedRoute>} />
       <Route path="/owner/finances" element={<ProtectedRoute role="owner"><OwnerFinances /></ProtectedRoute>} />
+      <Route path="/owner/profile" element={<ProtectedRoute role="owner"><Profile /></ProtectedRoute>} />
 
       {/* Admin routes */}
       <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/owners" element={<ProtectedRoute role="admin"><AdminOwners /></ProtectedRoute>} />
       <Route path="/admin/mikrotiks" element={<ProtectedRoute role="admin"><AdminMikrotiks /></ProtectedRoute>} />
+      <Route path="/admin/mikrotiks/:slug" element={<ProtectedRoute role="admin"><MikrotikDetail /></ProtectedRoute>} />
       <Route path="/admin/users" element={<ProtectedRoute role="admin"><AdminUsers /></ProtectedRoute>} />
+      <Route path="/admin/profile" element={<ProtectedRoute role="admin"><Profile /></ProtectedRoute>} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

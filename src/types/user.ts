@@ -1,51 +1,32 @@
-export interface MicrotikInfo {
-  slug: string;
-  name: string;
-}
-
+// types/user.ts
 export interface UserOutSchema {
   slug: string;
   first_name: string;
   last_name: string;
   email: string;
   phone_number: string;
-  user_type: string;
+  user_type: "admin" | "owner" | "client" | "ownermicrotik";
   address: string | null;
   is_active: boolean;
 }
 
-export interface UserRetrieveSchema {
-  slug: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-  user_type: string;
-  address: string;
-  is_active: boolean;
-  microtiks: MicrotikInfo[];
+export interface UserUpdate {
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
+  address?: string;
+  user_type?: string;
+  is_active?: boolean;
 }
 
-export interface PagedUserOutSchema {
-  items: UserOutSchema[];
-  count: number;
-}
-
-export interface UserInSchema {
+export interface UserCreate {
   first_name: string;
   last_name: string;
   email: string;
   phone_number: string;
   password: string;
-  user_type?: string;
-  address?: string | null;
-}
-
-export interface UserUpdate {
-  first_name?: string | null;
-  last_name?: string | null;
-  address?: string | null;
-  user_type?: string | null;
+  user_type: string;
+  address?: string;
 }
 
 export interface UserPasswordUpdateMe {
@@ -53,7 +34,24 @@ export interface UserPasswordUpdateMe {
   new_password: string;
 }
 
-export interface UserPasswordUpdate {
+export interface UserPasswordReset {
   email: string;
+  new_password: string;
+}
+
+export interface UserListResponse {
+  items: UserOutSchema[];
+  count: number;
+}
+
+export interface UserDetailResponse extends UserOutSchema {
+  microtiks: Array<{
+    slug: string;
+    name: string;
+  }>;
+}
+
+export interface UserPasswordUpdate {
+  password: string;
   new_password: string;
 }

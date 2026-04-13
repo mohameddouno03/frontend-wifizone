@@ -1,3 +1,4 @@
+// types/mikrotik.ts
 export type MikroTikRateLimit =
   | "256k/512k"
   | "512k/1M"
@@ -11,11 +12,8 @@ export type MikroTikRateLimit =
   | "0/0";
 
 export type CurrencyEnum = "gnf";
-
 export type StatusEnum = "disable" | "active";
-
 export type ProfilDurationEnum = "m" | "h" | "d";
-
 export type SubscriptionCategoriEnum = "mensuel" | "trimestriel" | "annuel";
 
 export interface MicrotikOutListSchema {
@@ -55,6 +53,9 @@ export interface ProfilOutSchema {
   price: string;
   currency: CurrencyEnum;
   slug: string;
+  status?: StatusEnum;
+  type_session?: ProfilDurationEnum;
+  duration?: number;
 }
 
 export interface MicrotikOutRetrieveSchema {
@@ -112,21 +113,7 @@ export interface ProfilUpdateSchema {
   duration?: number | null;
 }
 
-export interface SubscriptionCategorieInSchema {
-  name: SubscriptionCategoriEnum;
-  price: number | string;
-}
-
-export interface SubscriptionCategorieUpdateSchema {
-  name?: SubscriptionCategoriEnum | null;
-  price?: number | string | null;
-}
-
-export interface SubscriptionVpnInSchema {
-  category_slug: string;
-}
-
-export interface SubscriptionResponse {
+export interface ProfilResponseSchema {
   status: string;
   message: string;
 }

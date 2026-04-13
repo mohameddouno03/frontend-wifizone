@@ -1,21 +1,27 @@
-// API configuration - replace with your Django backend URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://dounoh0.pythonanywhere.com/api";
 
-export async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
+export const apiFetch = async <T>(endpoint: string, options: RequestInit = {}): Promise<T> => {
   const token = localStorage.getItem("auth_token");
-  const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ detail: "Erreur réseau" }));
-    throw new Error(error.detail || `Erreur ${res.status}`);
-  }
-  return res.json();
-}
+  
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...options.headers,
+  };
 
-export { API_BASE_URL };
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.detail || `Erreur ${response.status}`);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  return response.json();
+};

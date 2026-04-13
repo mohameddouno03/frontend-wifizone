@@ -1,55 +1,57 @@
+// services/auth.service.ts
 import { apiFetch } from "@/lib/api";
 import type { SignInRequest, WebSignInResponse } from "@/types/auth";
-import type { UserOutSchema, UserUpdate, UserPasswordUpdateMe } from "@/types/user";
+import type { UserOutSchema } from "@/types/user";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://dounoh0.pythonanywhere.com/api";
 
 export const authService = {
-  /** Web sign in - returns access token (refresh in httpOnly cookie) */
   async webSignIn(data: SignInRequest): Promise<WebSignInResponse> {
-    return apiFetch<WebSignInResponse>("/auth/web/sign-in", {
+    const response = await fetch(`${API_BASE_URL}/auth/web/sign-in`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.detail || "Échec de l'authentification");
+    }
+    
+    const result = await response.json();
+    if (result.refresh) {
+      localStorage.setItem("refresh_token", result.refresh);
+    }
+    return result;
   },
 
-  /** Refresh web token */
   async webTokenRefresh(): Promise<WebSignInResponse> {
-    return apiFetch<WebSignInResponse>("/auth/web/token-refresh", {
+    const refreshToken = localStorage.getItem("refresh_token");
+    const response = await fetch(`${API_BASE_URL}/auth/web/token-refresh`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh: refreshToken }),
     });
+    
+    if (!response.ok) {
+      throw new Error("Échec du rafraîchissement du token");
+    }
+    return response.json();
   },
 
-  /** Web sign out */
-  async webSignOut(): Promise<void> {
-    return apiFetch<void>("/auth/web/sign-out", {
-      method: "POST",
-    });
-  },
-
-  /** Get current authenticated user */
   async getCurrentUser(): Promise<UserOutSchema> {
     return apiFetch<UserOutSchema>("/users/me");
   },
 
-  /** Update current user profile */
-  async updateCurrentUser(data: UserUpdate): Promise<UserOutSchema> {
-    return apiFetch<UserOutSchema>("/users/me", {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    });
-  },
-
-  /** Reset current user password */
-  async resetMyPassword(data: UserPasswordUpdateMe): Promise<void> {
-    return apiFetch<void>("/users/me/reset_password/", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-  },
-
-  /** Delete current user account */
-  async deleteMyAccount(): Promise<void> {
-    return apiFetch<void>("/users/me/delete/", {
-      method: "DELETE",
-    });
+  async webSignOut(): Promise<void> {
+    try {
+      await apiFetch<void>("/auth/web/sign-out", { method: "POST" });
+    } finally {
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("wifi_user");
+    }
   },
 };
+
+export default authService;

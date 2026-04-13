@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import  { authService } from "@/services/auth.service";
+import type { UserOutSchema } from "@/types/user";
 
 type UserRole = "admin" | "owner" | "client";
 
@@ -12,40 +14,67 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  login: (username: string, password: string) => Promise<User>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// Mock users for demo - replace with real API calls
-const MOCK_USERS: Record<string, User & { password: string }> = {
-  "admin@wifi.com": { id: "a1", name: "Administrateur", email: "admin@wifi.com", role: "admin", password: "admin123" },
-  "owner@wifi.com": { id: "o1", name: "Jean Dupont", email: "owner@wifi.com", role: "owner", password: "owner123" },
+const mapUserToAppUser = (userData: UserOutSchema): User => {
+  return {
+    id: userData.slug,
+    name: `${userData.first_name} ${userData.last_name}`.trim(),
+    email: userData.email,
+    role: userData.user_type === "admin" ? "admin" : "owner",
+  };
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    const stored = localStorage.getItem("wifi_user");
-    return stored ? JSON.parse(stored) : null;
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = useCallback(async (email: string, password: string) => {
-    // TODO: Replace with real API call
-    const mockUser = MOCK_USERS[email];
-    if (!mockUser || mockUser.password !== password) {
-      throw new Error("Email ou mot de passe incorrect");
+  useEffect(() => {
+    const storedUser = localStorage.getItem("wifi_user");
+    const token = localStorage.getItem("auth_token");
+    
+    if (storedUser && token) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        localStorage.removeItem("wifi_user");
+        localStorage.removeItem("auth_token");
+      }
     }
-    const { password: _, ...userData } = mockUser;
-    localStorage.setItem("wifi_user", JSON.stringify(userData));
-    setUser(userData);
+    setLoading(false);
   }, []);
 
-  const logout = useCallback(() => {
+  const login = async (username: string, password: string): Promise<User> => {
+    const response = await authService.webSignIn({ username, password });
+    localStorage.setItem("auth_token", response.access);
+    
+    const userData = await authService.getCurrentUser();
+    const mappedUser = mapUserToAppUser(userData);
+    
+    localStorage.setItem("wifi_user", JSON.stringify(mappedUser));
+    setUser(mappedUser);
+    
+    return mappedUser;
+  };
+
+  const logout = async (): Promise<void> => {
     localStorage.removeItem("wifi_user");
     localStorage.removeItem("auth_token");
+    localStorage.removeItem("refresh_token");
     setUser(null);
-  }, []);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>

@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Wifi, AlertCircle } from "lucide-react";
+import { Wifi, AlertCircle, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -19,85 +19,100 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      await login(email, password);
-      // Redirect based on role
-      const user = JSON.parse(localStorage.getItem("wifi_user") || "{}");
+      const user = await login(username, password);
       navigate(user.role === "admin" ? "/admin" : "/owner");
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Nom d'utilisateur ou mot de passe incorrect");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left panel */}
-      <div className="hidden w-1/2 items-center justify-center bg-primary lg:flex">
-        <div className="max-w-md px-8 text-center">
-          <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary-foreground/10">
-            <Wifi className="h-10 w-10 text-primary-foreground" />
-          </div>
-          <h2 className="text-3xl font-bold text-primary-foreground">WiFi Zone Manager</h2>
-          <p className="mt-4 text-primary-foreground/70">
-            Gérez vos points d'accès WiFi, suivez vos revenus et automatisez la vente de tickets.
-          </p>
-        </div>
+    <div className="relative flex min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-purple-500 opacity-30 blur-3xl" />
+        <div className="absolute top-60 -left-40 h-80 w-80 rounded-full bg-blue-500 opacity-20 blur-3xl" />
+        <div className="absolute -bottom-40 right-60 h-80 w-80 rounded-full bg-indigo-500 opacity-20 blur-3xl" />
       </div>
 
-      {/* Right panel - Form */}
-      <div className="flex w-full items-center justify-center px-6 lg:w-1/2">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 text-center lg:text-left">
-            <div className="mb-4 flex items-center justify-center gap-2 lg:justify-start">
-              <Wifi className="h-6 w-6 text-primary lg:hidden" />
-              <span className="text-xl font-bold text-foreground lg:hidden">WiFi Zone</span>
+      <div className="relative z-10 flex w-full items-center justify-center px-4">
+        <div className="w-full max-w-md">
+          <div className="mb-10 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg">
+              <Wifi className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Connexion</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Entrez vos identifiants pour accéder au tableau de bord
-            </p>
+            <h1 className="text-3xl font-bold text-white">WiFi Zone</h1>
+            <p className="mt-2 text-sm text-gray-400">Gérez vos points d'accès WiFi</p>
           </div>
 
-          {error && (
-            <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              {error}
-            </div>
-          )}
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl">
+            <h2 className="mb-6 text-xl font-semibold text-white">Connexion</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="votre@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Connexion..." : "Se connecter"}
-            </Button>
-          </form>
+            {error && (
+              <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {error}
+              </div>
+            )}
 
-          <div className="mt-6 rounded-lg border border-border bg-muted/50 p-4 text-xs text-muted-foreground">
-            <p className="font-medium">Comptes démo :</p>
-            <p className="mt-1">Admin : admin@wifi.com / admin123</p>
-            <p>Propriétaire : owner@wifi.com / owner123</p>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-300">
+                  Nom d'utilisateur
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    type="text"
+                    placeholder="Entrer votre nom"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-gray-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-300">
+                  Mot de passe
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="border-white/10 bg-white/5 pl-10 pr-10 text-white placeholder:text-gray-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  {loading ? "Connexion..." : "Se connecter"}
+                  {!loading && <ArrowRight className="h-4 w-4" />}
+                </span>
+              </Button>
+            </form>
           </div>
         </div>
       </div>
