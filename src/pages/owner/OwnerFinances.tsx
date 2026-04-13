@@ -82,7 +82,6 @@ export default function OwnerFinances() {
         <StatCard title="Retraits" value={withdrawals.length} icon={Clock} variant="default" />
       </div>
 
-      {/* Solde par Mikrotik */}
       <div className="rounded-xl border border-border bg-card p-6">
         <h3 className="mb-4 text-lg font-semibold text-foreground">Solde par Mikrotik</h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -95,7 +94,6 @@ export default function OwnerFinances() {
         </div>
       </div>
 
-      {/* Deposits */}
       <div className="rounded-xl border border-border bg-card p-6">
         <h3 className="mb-4 text-lg font-semibold text-foreground">Dépôts récents</h3>
         <table className="w-full text-sm">
@@ -120,7 +118,6 @@ export default function OwnerFinances() {
         </table>
       </div>
 
-      {/* Withdrawal history */}
       <div className="rounded-xl border border-border bg-card p-6">
         <h3 className="mb-4 text-lg font-semibold text-foreground">Historique des retraits</h3>
         <table className="w-full text-sm">

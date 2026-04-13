@@ -1,4 +1,3 @@
-// pages/owner/MikrotikDetail.tsx - CORRIGÉ
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useMikrotiks } from "@/hooks/useMikrotiks";
@@ -105,7 +104,6 @@ export default function MikrotikDetail() {
       setIsEditOpen(false);
       loadData();
     } catch (err) {
-      // Error handled in hook
     }
   };
 
@@ -117,7 +115,6 @@ export default function MikrotikDetail() {
         toast.success("Mikrotik supprimé");
         navigate(-1);
       } catch (err) {
-        // Error handled in hook
       }
     }
   };
@@ -128,7 +125,6 @@ export default function MikrotikDetail() {
       await toggleOnline(slug, mikrotik.is_online);
       loadData();
     } catch (err) {
-      // Error handled in hook
     }
   };
 
@@ -137,7 +133,6 @@ export default function MikrotikDetail() {
     if (!slug) return;
     try {
       if (isEditingProfile && selectedProfile) {
-        // ✅ MISE À JOUR : Conversion pour ProfilUpdateSchema (price en string)
         await updateProfile(slug, selectedProfile.slug, {
           name: profileForm.name,
           rate_limit: profileForm.rate_limit,
@@ -150,7 +145,6 @@ export default function MikrotikDetail() {
         });
         toast.success("Profil mis à jour");
       } else {
-        // ✅ CRÉATION : ProfilInSchema accepte number ou string
         await createProfile(slug, profileForm);
         toast.success("Profil créé");
       }
@@ -169,7 +163,6 @@ export default function MikrotikDetail() {
       });
       loadData();
     } catch (err) {
-      // Error handled in hook
     }
   };
 
@@ -179,7 +172,7 @@ export default function MikrotikDetail() {
       name: profile.name,
       rate_limit: profile.rate_limit,
       shared_users: profile.shared_users,
-      price: parseFloat(profile.price) || 0, // ✅ Conversion string → number
+      price: parseFloat(profile.price) || 0, 
       currency: profile.currency,
       status: profile.status || "active",
       type_session: profile.type_session || "h",
@@ -197,7 +190,6 @@ export default function MikrotikDetail() {
         toast.success("Profil supprimé");
         loadData();
       } catch (err) {
-        // Error handled in hook
       }
     }
   };
@@ -235,7 +227,6 @@ export default function MikrotikDetail() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
@@ -293,7 +284,6 @@ export default function MikrotikDetail() {
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { label: "Solde", value: formatCurrency(mikrotik.wallet_balance), icon: Wallet, color: "from-emerald-500 to-teal-500" },
@@ -321,7 +311,6 @@ export default function MikrotikDetail() {
         })}
       </div>
 
-      {/* Subscription Info */}
       {mikrotik.subscription && (
         <Card className="border-0 shadow-lg">
           <CardHeader>
@@ -355,7 +344,6 @@ export default function MikrotikDetail() {
         </Card>
       )}
 
-      {/* Profils Section */}
       <Card className="border-0 shadow-xl">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">

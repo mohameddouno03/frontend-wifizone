@@ -1,4 +1,3 @@
-// pages/admin/AdminUsers.tsx
 import { useState } from "react";
 import { useUsers } from "@/hooks/useUsers";
 import { Button } from "@/components/ui/button";
@@ -278,7 +277,6 @@ export default function AdminUsers() {
 
   return (
     <div className="space-y-6">
-      {/* Header moderne */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
@@ -362,7 +360,6 @@ export default function AdminUsers() {
         </div>
       </div>
 
-      {/* Tabs de filtrage */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full justify-start gap-2 bg-transparent p-0">
           <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
@@ -392,7 +389,6 @@ export default function AdminUsers() {
         </TabsList>
       </Tabs>
 
-      {/* Cartes statistiques */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
         {[
           { label: "Total", value: stats.total, icon: UsersIcon, color: "from-blue-500 to-cyan-500" },
@@ -424,7 +420,6 @@ export default function AdminUsers() {
         })}
       </div>
 
-      {/* Liste des utilisateurs */}
       <Card className="border-0 shadow-xl">
         {filteredUsers.length === 0 ? (
           <CardContent className="py-16 text-center">
@@ -595,7 +590,6 @@ export default function AdminUsers() {
               </table>
             </div>
 
-            {/* Pagination améliorée */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between px-4 py-3 border-t border-border">
                 <p className="text-sm text-muted-foreground">
@@ -651,7 +645,6 @@ export default function AdminUsers() {
             )}
           </>
         ) : (
-          // Vue en grille
           <ScrollArea className="h-[500px]">
             <div className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredUsers.map(u => (
@@ -741,7 +734,6 @@ export default function AdminUsers() {
         )}
       </Card>
 
-      {/* Modal Création (modernisé) */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
@@ -843,7 +835,6 @@ export default function AdminUsers() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal Voir détails (modernisé) */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -954,7 +945,6 @@ export default function AdminUsers() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal Modification (modernisé) */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>

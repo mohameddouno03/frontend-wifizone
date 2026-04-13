@@ -6,8 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   Wifi, LayoutDashboard, Users, DollarSign, LogOut,
   Menu, X, Router, UserCog, Search, Bell, Sun, Moon,
-  Settings, HelpCircle, User, ChevronRight, Sparkles,
-  Command, ChevronLeft
+  Settings, HelpCircle, User, Command, PanelLeftClose, PanelLeftOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,7 +67,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [searchQuery, setSearchQuery] = useState("");
   const [notifications] = useState([
     { id: 1, title: "Nouvel utilisateur", message: "Un nouvel utilisateur s'est inscrit", time: "5 min", read: false },
-    { id: 2, title: "Paiement reçu", message: "Paiement de 5000 FCFA reçu", time: "1h", read: false },
+    { id: 2, title: "Paiement reçu", message: "Paiement de 5000 GNF reçu", time: "1h", read: false },
     { id: 3, title: "Mikrotik déconnecté", message: "Hotspot Principal est hors ligne", time: "2h", read: true },
   ]);
 
@@ -102,8 +101,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return name?.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "U";
   };
 
-  const currentPage = navItems.find((n) => n.href === location.pathname)?.label || "Dashboard";
-
   const getProfilePath = () => {
     return user?.role === "admin" ? "/admin/profile" : "/owner/profile";
   };
@@ -128,12 +125,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Wifi className="h-5 w-5 text-primary-foreground" />
             </div>
             {!sidebarCollapsed && (
-              <>
-                <span className="text-base font-bold tracking-tight">
-                  WiFi Zone
-                </span>
-                <Badge variant="secondary" className="ml-auto text-[10px]">PRO</Badge>
-              </>
+              <span className="text-base font-bold tracking-tight">
+                WiFi Zone
+              </span>
             )}
             <button
               onClick={() => setSidebarOpen(false)}
@@ -282,26 +276,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               size="icon"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               className="hidden h-9 w-9 lg:flex"
+              title={sidebarCollapsed ? "Développer le menu" : "Réduire le menu"}
             >
               {sidebarCollapsed ? (
-                <ChevronRight className="h-4 w-4" />
+                <PanelLeftOpen className="h-5 w-5" />
               ) : (
-                <ChevronLeft className="h-4 w-4" />
+                <PanelLeftClose className="h-5 w-5" />
               )}
             </Button>
 
             <button onClick={() => setSidebarOpen(true)} className="lg:hidden">
               <Menu className="h-6 w-6" />
             </button>
-
-            {/* Page title */}
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-semibold">{currentPage}</h1>
-              <Badge variant="outline" className="text-[10px]">
-                <Sparkles className="mr-1 h-3 w-3" />
-                Beta
-              </Badge>
-            </div>
 
             {/* Search */}
             <div className="hidden flex-1 items-center justify-center md:flex">

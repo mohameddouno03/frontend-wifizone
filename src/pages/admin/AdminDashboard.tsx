@@ -1,4 +1,3 @@
-// pages/admin/AdminDashboard.tsx
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUsers } from "@/hooks/useUsers";

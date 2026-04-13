@@ -1,4 +1,3 @@
-// pages/owner/OwnerUsers.tsx
 import { useState } from "react";
 import { useUsers } from "@/hooks/useUsers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

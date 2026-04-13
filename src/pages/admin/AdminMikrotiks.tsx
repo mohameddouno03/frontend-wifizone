@@ -1,4 +1,3 @@
-// pages/admin/AdminMikrotiks.tsx - VERSION CORRIGÉE
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMikrotiks } from "@/hooks/useMikrotiks";
@@ -9,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
-  Search, Plus, Router, Wifi, WifiOff, RefreshCw, Eye, Edit, Power, PowerOff,
-  ChevronLeft, ChevronRight, Wallet, Users, AlertCircle,
+  Search, Plus, Router, Wifi, WifiOff, RefreshCw, Eye, Power, PowerOff,
+  ChevronLeft, ChevronRight, Users, Wallet, AlertCircle,
   Filter, Download
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -99,8 +98,7 @@ export default function AdminMikrotiks() {
             <h3 className="text-lg font-semibold mb-2">Erreur de chargement</h3>
             <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={refetch} variant="outline">
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Réessayer
+              <RefreshCw className="mr-2 h-4 w-4" />Réessayer
             </Button>
           </CardContent>
         </Card>
@@ -110,7 +108,6 @@ export default function AdminMikrotiks() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Mikrotiks</h1>
@@ -135,8 +132,7 @@ export default function AdminMikrotiks() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <Router className="h-5 w-5" />
-                  Créer un Mikrotik
+                  <Router className="h-5 w-5" />Créer un Mikrotik
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleCreate} className="space-y-4 mt-4">
@@ -150,9 +146,7 @@ export default function AdminMikrotiks() {
                   />
                 </div>
                 <div className="flex justify-end gap-3">
-                  <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
-                    Annuler
-                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>Annuler</Button>
                   <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Créer
@@ -164,7 +158,6 @@ export default function AdminMikrotiks() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
         {[
           { label: "Total", value: stats.total, icon: Router, color: "from-blue-500 to-cyan-500" },
@@ -182,9 +175,9 @@ export default function AdminMikrotiks() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs font-medium text-muted-foreground uppercase">{stat.label}</p>
-                    <p className="text-2xl font-bold mt-1">{stat.value}</p>
+                    <p className="text-xl font-bold mt-1 truncate">{stat.value}</p>
                   </div>
-                  <div className={cn("rounded-xl p-2.5 bg-gradient-to-br text-white", stat.color)}>
+                  <div className={cn("rounded-xl p-2.5 bg-gradient-to-br text-white shrink-0", stat.color)}>
                     <Icon className="h-4 w-4" />
                   </div>
                 </div>
@@ -194,7 +187,6 @@ export default function AdminMikrotiks() {
         })}
       </div>
 
-      {/* Table */}
       <Card className="border-0 shadow-xl">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center justify-between">
@@ -247,13 +239,20 @@ export default function AdminMikrotiks() {
                       </td>
                       <td className="py-4">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => navigate(`/admin/mikrotiks/${m.slug}`)}>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => navigate(`/admin/mikrotiks/${m.slug}`)}
+                            title="Voir les détails"
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => navigate(`/admin/mikrotiks/${m.slug}/edit`)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleToggleOnline(m.slug, m.is_online)}>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleToggleOnline(m.slug, m.is_online)}
+                            title={m.is_online ? "Désactiver" : "Activer"}
+                          >
                             {m.is_online ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />}
                           </Button>
                         </div>
@@ -265,12 +264,9 @@ export default function AdminMikrotiks() {
             </table>
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-4">
-              <p className="text-sm text-muted-foreground">
-                Page {currentPage} sur {totalPages} · {total} Mikrotiks
-              </p>
+              <p className="text-sm text-muted-foreground">Page {currentPage} sur {totalPages} · {total} Mikrotiks</p>
               <div className="flex items-center gap-1">
                 <Button variant="outline" size="icon" onClick={prevPage} disabled={currentPage === 1}>
                   <ChevronLeft className="h-4 w-4" />

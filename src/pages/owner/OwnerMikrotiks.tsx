@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
-  Search, Plus, Router, Wifi, WifiOff, RefreshCw, Eye, Edit,
+  Search, Plus, Router, Wifi, WifiOff, RefreshCw, Eye,
   ChevronLeft, ChevronRight, Users, Wallet, AlertCircle,
   Filter, Download
 } from "lucide-react";
@@ -35,7 +35,7 @@ export default function OwnerMikrotiks() {
     prevPage,
     refetch,
     createMikrotik,
-    formatCurrency, // ✅ Ajouté
+    formatCurrency,
   } = useMikrotiks(10, 0);
 
   const filtered = mikrotiks.filter(m =>
@@ -148,7 +148,6 @@ export default function OwnerMikrotiks() {
         </div>
       </div>
 
-      {/* Stats - 5 cartes */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {[
           { label: "Total", value: stats.total, icon: Router, color: "from-blue-500 to-cyan-500" },
@@ -227,11 +226,13 @@ export default function OwnerMikrotiks() {
                       </td>
                       <td className="py-4">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => navigate(`/owner/mikrotiks/${m.slug}`)}>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => navigate(`/owner/mikrotiks/${m.slug}`)}
+                            title="Voir les détails"
+                          >
                             <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => navigate(`/owner/mikrotiks/${m.slug}/edit`)}>
-                            <Edit className="h-4 w-4" />
                           </Button>
                         </div>
                       </td>
