@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; 
 import { useUsers } from "@/hooks/useUsers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,9 +12,9 @@ import {
   CheckCircle2, Ban
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 export default function OwnerUsers() {
+  const navigate = useNavigate(); 
   const [search, setSearch] = useState("");
 
   const {
@@ -25,19 +26,24 @@ export default function OwnerUsers() {
     totalPages,
     nextPage,
     prevPage,
+    goToPage, 
     refetch,
   } = useUsers(10, 0);
 
-  const filtered = users.filter(u =>
+ 
+  const clients = users.filter(u => u.user_type === "client");
+  
+  const filtered = clients.filter(u =>
     u.email.toLowerCase().includes(search.toLowerCase()) ||
     u.first_name.toLowerCase().includes(search.toLowerCase()) ||
-    u.last_name.toLowerCase().includes(search.toLowerCase())
+    u.last_name.toLowerCase().includes(search.toLowerCase()) ||
+    (u.phone_number && u.phone_number.includes(search))
   );
 
   const stats = {
-    total: users.length,
-    active: users.filter(u => u.is_active).length,
-    inactive: users.filter(u => !u.is_active).length,
+    total: clients.length,
+    active: clients.filter(u => u.is_active).length,
+    inactive: clients.filter(u => !u.is_active).length,
   };
 
   const getInitials = (firstName: string, lastName: string) => {
@@ -79,7 +85,7 @@ export default function OwnerUsers() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Mes Utilisateurs</h1>
-          <p className="text-muted-foreground mt-1">Liste des utilisateurs connectés à vos hotspots</p>
+          <p className="text-muted-foreground mt-1">Liste des clients connectés à vos hotspots</p>
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -196,7 +202,12 @@ export default function OwnerUsers() {
                       </td>
                       <td className="py-4">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => navigate(`/owner/users/${u.slug}`)} 
+                            title="Voir les détails"
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
                         </div>
@@ -210,13 +221,49 @@ export default function OwnerUsers() {
 
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-4">
-              <p className="text-sm text-muted-foreground">Page {currentPage} sur {totalPages} · {total} utilisateurs</p>
+              <p className="text-sm text-muted-foreground">
+                Affichage de {(currentPage - 1) * 10 + 1} à {Math.min(currentPage * 10, total)} sur {total} utilisateurs
+              </p>
               <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon" onClick={prevPage} disabled={currentPage === 1}>
+                <Button variant="outline" size="icon" onClick={prevPage} disabled={currentPage === 1} className="h-8 w-8">
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="px-3 text-sm">{currentPage} / {totalPages}</span>
-                <Button variant="outline" size="icon" onClick={nextPage} disabled={currentPage === totalPages}>
+
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum: number;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => goToPage(pageNum)}
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+
+                {totalPages > 5 && currentPage < totalPages - 2 && (
+                  <>
+                    <span className="px-1 text-muted-foreground">...</span>
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => goToPage(totalPages)}>
+                      {totalPages}
+                    </Button>
+                  </>
+                )}
+
+                <Button variant="outline" size="icon" onClick={nextPage} disabled={currentPage === totalPages} className="h-8 w-8">
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>

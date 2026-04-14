@@ -1,4 +1,3 @@
-// App.tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -18,7 +17,10 @@ import AdminOwners from "@/pages/admin/AdminOwners";
 import AdminMikrotiks from "@/pages/admin/AdminMikrotiks";
 import AdminUsers from "@/pages/admin/AdminUsers";
 import MikrotikDetail from "@/pages/shared/MikrotikDetail";
+import OwnerDetail from "@/pages/shared/OwnerDetail"; 
 import NotFound from "@/pages/NotFound";
+import UserDetail from "@/pages/shared/UserDetail";
+
 
 const queryClient = new QueryClient();
 
@@ -48,10 +50,12 @@ function AppRoutes() {
       <Route path="/owner/users" element={<ProtectedRoute role="owner"><OwnerUsers /></ProtectedRoute>} />
       <Route path="/owner/finances" element={<ProtectedRoute role="owner"><OwnerFinances /></ProtectedRoute>} />
       <Route path="/owner/profile" element={<ProtectedRoute role="owner"><Profile /></ProtectedRoute>} />
+      <Route path="/owner/users/:slug" element={<ProtectedRoute role="owner"><UserDetail /></ProtectedRoute>} />
 
       {/* Admin routes */}
       <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/owners" element={<ProtectedRoute role="admin"><AdminOwners /></ProtectedRoute>} />
+      <Route path="/admin/owners/:slug" element={<ProtectedRoute role="admin"><OwnerDetail /></ProtectedRoute>} /> {/* ✅ Route ajoutée */}
       <Route path="/admin/mikrotiks" element={<ProtectedRoute role="admin"><AdminMikrotiks /></ProtectedRoute>} />
       <Route path="/admin/mikrotiks/:slug" element={<ProtectedRoute role="admin"><MikrotikDetail /></ProtectedRoute>} />
       <Route path="/admin/users" element={<ProtectedRoute role="admin"><AdminUsers /></ProtectedRoute>} />

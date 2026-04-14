@@ -1,4 +1,3 @@
-// pages/shared/MikrotikDetail.tsx
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Wifi, WifiOff, Users, Wallet, TrendingUp, CreditCard,
   RefreshCw, Edit, Trash2, Plus, Power, PowerOff,
-  ChevronLeft, AlertCircle, Copy, Server, DollarSign
+  ChevronLeft, AlertCircle, Server, DollarSign
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -116,7 +115,6 @@ export default function MikrotikDetail() {
       setIsEditOpen(false);
       loadData();
     } catch (err) {
-      // Error handled in hook
     }
   };
 
@@ -128,7 +126,6 @@ export default function MikrotikDetail() {
         toast.success("Mikrotik supprimé");
         navigate(`${basePath}/mikrotiks`);
       } catch (err) {
-        // Error handled in hook
       }
     }
   };
@@ -140,7 +137,6 @@ export default function MikrotikDetail() {
       toast.success(`Mikrotik ${!mikrotik.is_online ? 'activé' : 'désactivé'}`);
       loadData();
     } catch (err) {
-      // Error handled in hook
     }
   };
 
@@ -179,7 +175,6 @@ export default function MikrotikDetail() {
       });
       loadData();
     } catch (err) {
-      // Error handled in hook
     }
   };
 
@@ -207,15 +202,7 @@ export default function MikrotikDetail() {
         toast.success("Profil supprimé");
         loadData();
       } catch (err) {
-        // Error handled in hook
       }
-    }
-  };
-
-  const handleCopySlug = () => {
-    if (mikrotik?.slug) {
-      navigator.clipboard.writeText(mikrotik.slug);
-      toast.success("Slug copié !");
     }
   };
 
@@ -245,7 +232,6 @@ export default function MikrotikDetail() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={handleBack}>
@@ -263,12 +249,6 @@ export default function MikrotikDetail() {
               {mikrotik.admin_blocked && (
                 <Badge className="bg-warning/10 text-warning">Bloqué par admin</Badge>
               )}
-            </div>
-            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-              <span className="font-mono">ID: {mikrotik.slug.slice(0, 16)}...</span>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCopySlug}>
-                <Copy className="h-3 w-3" />
-              </Button>
             </div>
           </div>
         </div>
@@ -303,7 +283,6 @@ export default function MikrotikDetail() {
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { label: "Solde", value: formatCurrency(mikrotik.wallet_balance), icon: Wallet, color: "from-emerald-500 to-teal-500" },
@@ -331,7 +310,6 @@ export default function MikrotikDetail() {
         })}
       </div>
 
-      {/* Subscription Info */}
       {mikrotik.subscription && (
         <Card className="border-0 shadow-lg">
           <CardHeader>
@@ -365,7 +343,6 @@ export default function MikrotikDetail() {
         </Card>
       )}
 
-      {/* Profils Section */}
       <Card className="border-0 shadow-xl">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">

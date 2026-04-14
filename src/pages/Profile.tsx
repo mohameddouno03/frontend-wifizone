@@ -402,7 +402,7 @@ export default function Profile() {
                         value={profileForm.phone_number}
                         onChange={(e) => setProfileForm({ ...profileForm, phone_number: e.target.value })}
                         disabled={!isEditing}
-                        placeholder="+33 6 12 34 56 78"
+                        placeholder="+224 6XXXXXXXX"
                       />
                     </div>
 
@@ -413,7 +413,7 @@ export default function Profile() {
                         value={profileForm.address || ""}
                         onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })}
                         disabled={!isEditing}
-                        placeholder="123 rue Example"
+                        placeholder="Conakry, Guinée"
                       />
                     </div>
 

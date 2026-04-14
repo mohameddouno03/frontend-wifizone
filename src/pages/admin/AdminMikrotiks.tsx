@@ -8,17 +8,30 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Search, Plus, Router, Wifi, WifiOff, RefreshCw, Eye, Power, PowerOff,
   ChevronLeft, ChevronRight, Users, Wallet, AlertCircle,
-  Filter, Download
+  Filter, Download, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import type { MicrotikInSchema } from "@/types/mikrotik";
 
+type FilterStatus = "all" | "online" | "offline" | "blocked";
+type FilterUsers = "all" | "with_users" | "no_users";
+
 export default function AdminMikrotiks() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
+  const [usersFilter, setUsersFilter] = useState<FilterUsers>("all");
+  const [showFilters, setShowFilters] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [formData, setFormData] = useState<MicrotikInSchema>({ name: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,21 +45,34 @@ export default function AdminMikrotiks() {
     totalPages,
     nextPage,
     prevPage,
+    goToPage,
     refetch,
     createMikrotik,
     toggleOnline,
     formatCurrency,
   } = useMikrotiks(10, 0);
 
-  const filtered = mikrotiks.filter(m =>
-    m.name.toLowerCase().includes(search.toLowerCase()) ||
-    m.slug.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = mikrotiks.filter(m => {
+    const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase());
+
+    const matchesStatus = 
+      statusFilter === "all" ||
+      (statusFilter === "online" && m.is_online && !m.admin_blocked) ||
+      (statusFilter === "offline" && !m.is_online && !m.admin_blocked) ||
+      (statusFilter === "blocked" && m.admin_blocked);
+
+    const matchesUsers = 
+      usersFilter === "all" ||
+      (usersFilter === "with_users" && m.users_count > 0) ||
+      (usersFilter === "no_users" && m.users_count === 0);
+
+    return matchesSearch && matchesStatus && matchesUsers;
+  });
 
   const stats = {
-    total: mikrotiks.length,
-    online: mikrotiks.filter(m => m.is_online).length,
-    offline: mikrotiks.filter(m => !m.is_online).length,
+    total: total,
+    online: mikrotiks.filter(m => m.is_online && !m.admin_blocked).length,
+    offline: mikrotiks.filter(m => !m.is_online && !m.admin_blocked).length,
     blocked: mikrotiks.filter(m => m.admin_blocked).length,
     totalBalance: mikrotiks.reduce((s, m) => s + (parseFloat(m.wallet_balance) || 0), 0),
     totalUsers: mikrotiks.reduce((s, m) => s + m.users_count, 0),
@@ -75,6 +101,17 @@ export default function AdminMikrotiks() {
       toast.error(err.message || "Erreur");
     }
   };
+
+  const clearFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setUsersFilter("all");
+  };
+
+  const hasActiveFilters = 
+    search !== "" || 
+    statusFilter !== "all" || 
+    usersFilter !== "all";
 
   if (loading) {
     return (
@@ -114,17 +151,27 @@ export default function AdminMikrotiks() {
           <p className="text-muted-foreground mt-1">Gérez tous les points d'accès WiFi</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              className="pl-9 w-72 bg-muted/50"
-              placeholder="Rechercher..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
-          <Button variant="outline" size="icon"><Filter className="h-4 w-4" /></Button>
-          <Button variant="outline" size="icon"><Download className="h-4 w-4" /></Button>
+          <Button variant="outline" size="sm">
+            <Download className="mr-2 h-4 w-4" />
+            Exporter
+          </Button>
+          <Button 
+            variant={showFilters ? "default" : "outline"} 
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            Filtres
+            {hasActiveFilters && (
+              <Badge variant="secondary" className="ml-2">
+                {[
+                  search && 1,
+                  statusFilter !== "all" && 1,
+                  usersFilter !== "all" && 1,
+                ].filter(Boolean).length}
+              </Badge>
+            )}
+          </Button>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
               <Button><Plus className="mr-2 h-4 w-4" />Nouveau Mikrotik</Button>
@@ -187,6 +234,63 @@ export default function AdminMikrotiks() {
         })}
       </div>
 
+      {showFilters && (
+        <Card className="border-0 shadow-lg">
+          <CardContent className="p-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+              <div className="flex-1">
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Recherche</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    className="pl-9 bg-muted/50"
+                    placeholder="Nom du Mikrotik..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="w-48">
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Statut</label>
+                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as FilterStatus)}>
+                  <SelectTrigger className="bg-muted/50">
+                    <SelectValue placeholder="Statut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les statuts</SelectItem>
+                    <SelectItem value="online">En ligne</SelectItem>
+                    <SelectItem value="offline">Hors ligne</SelectItem>
+                    <SelectItem value="blocked">Bloqués</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="w-48">
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Utilisateurs</label>
+                <Select value={usersFilter} onValueChange={(v) => setUsersFilter(v as FilterUsers)}>
+                  <SelectTrigger className="bg-muted/50">
+                    <SelectValue placeholder="Utilisateurs" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous</SelectItem>
+                    <SelectItem value="with_users">Avec utilisateurs</SelectItem>
+                    <SelectItem value="no_users">Sans utilisateur</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {hasActiveFilters && (
+                <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground">
+                  <X className="mr-1 h-3 w-3" />
+                  Effacer
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="border-0 shadow-xl">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center justify-between">
@@ -200,7 +304,6 @@ export default function AdminMikrotiks() {
               <thead>
                 <tr className="border-b border-border text-left text-sm text-muted-foreground">
                   <th className="pb-3 font-medium">Nom</th>
-                  <th className="pb-3 font-medium">ID</th>
                   <th className="pb-3 font-medium">Utilisateurs</th>
                   <th className="pb-3 font-medium">Solde</th>
                   <th className="pb-3 font-medium">Statut</th>
@@ -209,7 +312,9 @@ export default function AdminMikrotiks() {
               </thead>
               <tbody className="divide-y divide-border">
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={6} className="py-12 text-center text-muted-foreground">Aucun Mikrotik trouvé</td></tr>
+                  <tr><td colSpan={5} className="py-12 text-center text-muted-foreground">
+                    {hasActiveFilters ? "Aucun résultat avec ces filtres" : "Aucun Mikrotik trouvé"}
+                  </td></tr>
                 ) : (
                   filtered.map(m => (
                     <tr key={m.slug} className="hover:bg-muted/30 transition-colors">
@@ -221,7 +326,6 @@ export default function AdminMikrotiks() {
                           <span className="font-medium">{m.name}</span>
                         </div>
                       </td>
-                      <td className="py-4 text-muted-foreground text-sm font-mono">{m.slug.slice(0, 12)}...</td>
                       <td className="py-4">
                         <div className="flex items-center gap-2">
                           <Users className="h-4 w-4 text-muted-foreground" />
@@ -266,13 +370,49 @@ export default function AdminMikrotiks() {
 
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-4">
-              <p className="text-sm text-muted-foreground">Page {currentPage} sur {totalPages} · {total} Mikrotiks</p>
+              <p className="text-sm text-muted-foreground">
+                Affichage de {(currentPage - 1) * 10 + 1} à {Math.min(currentPage * 10, total)} sur {total} Mikrotiks
+              </p>
               <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon" onClick={prevPage} disabled={currentPage === 1}>
+                <Button variant="outline" size="icon" onClick={prevPage} disabled={currentPage === 1} className="h-8 w-8">
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="px-3 text-sm">{currentPage} / {totalPages}</span>
-                <Button variant="outline" size="icon" onClick={nextPage} disabled={currentPage === totalPages}>
+
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum: number;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => goToPage(pageNum)}
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+
+                {totalPages > 5 && currentPage < totalPages - 2 && (
+                  <>
+                    <span className="px-1 text-muted-foreground">...</span>
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => goToPage(totalPages)}>
+                      {totalPages}
+                    </Button>
+                  </>
+                )}
+
+                <Button variant="outline" size="icon" onClick={nextPage} disabled={currentPage === totalPages} className="h-8 w-8">
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
